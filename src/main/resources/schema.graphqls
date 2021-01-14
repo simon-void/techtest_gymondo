@@ -1,0 +1,7 @@
+type Query {
+    ## diagnostic function
+    # returns its msg parameter
+    echo(msg: String!): String!
+
+    ## real functionality
+}
