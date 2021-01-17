@@ -3,3 +3,17 @@ server:
 
 localization:
   tax_percentage: 0.16
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+    hikari:
+      connection-timeout: 2000
+      maximum-pool-size: 5
+      pool-name: SubServicePool
+
+logging:
+  level:
+    org.springframework: INFO
