@@ -16,3 +16,48 @@ or by executing via `./gradlew bootRun` in a terminal set to the project directo
   and error highlighting functionality. When the query is complete, press the Run button (the triangle), and the
   query will be executed against the previously provided endpoint. The result will be displayed in the right area. 
   ![s so cool!](./docs/graphql_query.png)
+  
+## querries for acceptance criteria
+
+1) display everything about all products/offers
+```graphql
+{
+  products {
+    id
+    course {
+      id
+      name
+      instructorName
+      level
+    }
+    availableFrom
+    availableTo
+    duration {
+      unit
+      multiplier
+    }
+    priceInCents
+  }
+}
+```
+2) display everything about a specific product/offer
+```graphql
+{
+  product(offerId: 1) {
+    id
+    course {
+      id
+      name
+      instructorName
+      level
+    }
+    availableFrom
+    availableTo
+    duration {
+      unit
+      multiplier
+    }
+    priceInCents
+  }
+}
+```

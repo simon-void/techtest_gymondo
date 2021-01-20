@@ -12,11 +12,7 @@ class OfferService(
 ) {
     companion object: Logging(OfferService::class.java)
 
-    fun getAllOffers(onlyActive: Boolean): List<Offer> = if (onlyActive) {
-        offerRepo.findAllActive(LocalDate.now())
-    } else {
-        offerRepo.findAll()
-    }.map { it.toModel() }
+    fun getAllOffers(): List<Offer> = offerRepo.findAll().map { it.toModel() }
 
     fun getOffer(offerId: Long): Offer? = offerRepo.findByIdOrNull(offerId)?.toModel()
 }

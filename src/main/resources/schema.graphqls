@@ -4,7 +4,7 @@ type Query {
     echo(msg: String!): String!
 
     ## real functionality
-    products(onlyActive: Boolean! = true): [Offer!]!
+    products: [Offer!]!
     product(offerId: ID!): Offer
     buy(userId: ID!, offerId: ID!): Subscription
     subscription(subId: ID!): Subscription
