@@ -61,3 +61,29 @@ or by executing via `./gradlew bootRun` in a terminal set to the project directo
   }
 }
 ```
+3) display the subscription that is the result of calling buy:
+```graphql
+{
+  buy(userId:"1", offerId:"3") {
+    id
+    course {
+      id
+      name
+      instructorName
+      level
+    }
+    user {
+      id
+      name
+    }
+    duration {
+      unit
+      multiplier
+    }
+    priceInCents
+    taxInCents
+    startDate
+    endDate
+  }
+}
+```

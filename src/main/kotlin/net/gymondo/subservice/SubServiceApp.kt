@@ -71,11 +71,17 @@ class SubServiceApp(
         // add a subscription
         subService.subscribe(userId, oneMonthOfferId)
 
-        // and print all found subscriptions to the log
-        val subscriptions: List<SubscriptionEntity> = subRepo.findAll().toList()
-        logger.info("found ${subscriptions.size} subscriptions:")
-        for(sub in subscriptions) {
-            logger.info("$sub")
+        // and print all found db data to the log
+        fun Iterable<Any>.printContents(contentName: String) {
+            val thisAsList = this.toList()
+            logger.info("found ${thisAsList.size} $contentName:")
+            for(item in thisAsList) {
+                logger.info("$item")
+            }
         }
+        userRepo.findAll().printContents("users")
+        courseRepo.findAll().printContents("courses")
+        offerRepo.findAll().printContents("offers/products")
+        subRepo.findAll().printContents("subscriptions")
     }
 }

@@ -42,14 +42,15 @@ class GraphQLProvider(
 
         addTypeWiring("Query") {
             register("echo", dataFetcherByArgument("msg") { msg: String -> msg })
-            register("products", DataFetcher {
+            register("products") {
                 offerService.getAllOffers()
-            })
+            }
             register("product", dataFetcherByArgument("offerId") { offerId: String ->
                 offerService.getOffer(offerId.toLong())
             })
             register( "buy", dataFetcherByTwoArguments("userId", "offerId") {userId: String, offerId: String ->
-                subService.subscribe(userId.toLong(), offerId.toLong())
+                val sub = subService.subscribe(userId.toLong(), offerId.toLong())
+                sub
             })
             register("subscription", dataFetcherByArgument("subId") { subId: String ->
                 subService.getSubscription(subId.toLong())
