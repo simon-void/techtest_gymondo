@@ -4,4 +4,61 @@ type Query {
     echo(msg: String!): String!
 
     ## real functionality
+    products(onlyActive: Boolean! = true): [Offer!]!
+    product(offerId: ID!): Offer
+    buy(userId: ID!, offerId: ID!): Subscription
+    subscription(subId: ID!): Subscription
+}
+
+type Offer {
+    id: ID!
+    courseId: ID!
+    course: Course!
+    availableFrom: String!
+    availableTo: String!
+    duration: OfferDuration!
+    priceInCents: Int!
+}
+
+type Subscription {
+    id: ID!
+    courseId: ID!
+    course: Course!
+    userId: ID!
+    user: User!
+    duration: OfferDuration!
+    priceInCents: Int!
+    taxInCents: Int!
+    startDate: String!
+    endDate: String!
+}
+
+type User {
+    id: ID!
+    name: String!
+}
+
+type Course {
+    id: ID!
+    name: String!
+    level: Level
+    instructorName: String!
+    #schedule: [Occurrence!]!
+}
+
+enum Level {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+}
+
+type OfferDuration {
+    unit: OfferDurationUnit!
+    multiplier: Int
+}
+
+enum OfferDurationUnit {
+    DAYS
+    WEEKS
+    MONTHS
 }

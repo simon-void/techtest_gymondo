@@ -10,13 +10,22 @@ import graphql.schema.idl.TypeRuntimeWiring
 import org.springframework.context.annotation.Bean
 
 import graphql.schema.idl.TypeRuntimeWiring.newTypeWiring
+import net.gymondo.subservice.LocalizationProperties
 import net.gymondo.subservice.ResourceLoader
+import net.gymondo.subservice.service.*
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Configuration
 
 
 @Configuration
 class GraphQLProvider(
+    private val localizationProperties: LocalizationProperties,
+    private val offerService: OfferService,
+    private val subService: SubscriptionService,
+    private val courseService: CourseService,
+    private val userService: UserService,
 ) {
 
     @Bean
@@ -33,7 +42,56 @@ class GraphQLProvider(
 
         addTypeWiring("Query") {
             register("echo", dataFetcherByArgument("msg") { msg: String -> msg })
+            register("products", dataFetcherByArgument("onlyActive") { onlyActive: Boolean ->
+                offerService.getAllOffers(onlyActive)
+            })
+            register("product", dataFetcherByArgument("offerId") { offerId: Long ->
+                offerService.getOffer(offerId)
+            })
+            register( "buy", dataFetcherByTwoArguments("userId", "offerId") {userId: Long, offerId: Long ->
+                subService.subscribe(userId, offerId)
+            })
+            register("subscription", dataFetcherByArgument("subId") { subId: Long ->
+                subService.getSubscription(subId)
+            })
         }
+
+        addTypeWiring("Offer") {
+            register("course", dataFetcherBySource { offer: Offer ->
+                courseService.getCourse(offer.courseId)
+            })
+            register("availableFrom", dataFetcherBySource { offer: Offer ->
+                offer.availableFrom.toString()
+            })
+            register("availableTo", dataFetcherBySource { offer: Offer ->
+                offer.availableUntil.toString()
+            })
+        }
+
+        addTypeWiring("Subscription") {
+            register("course", dataFetcherBySource { sub: Subscription ->
+                courseService.getCourse(sub.courseId)
+            })
+            register("user", dataFetcherBySource { sub: Subscription ->
+                userService.getUser(sub.userId)
+            })
+            register("startDate", dataFetcherBySource { sub: Subscription ->
+                sub.startDate.toString()
+            })
+            register("endDate", dataFetcherBySource { sub: Subscription ->
+                sub.endDate.toString()
+            })
+            register("taxInCents", dataFetcherBySource { sub: Subscription ->
+                (sub.priceInCents * localizationProperties.taxPercentage).toInt()
+            })
+        }
+
+//        addTypeWiring("OfferDuration") {
+//
+//        }
+
+//        addTypeWiring("Course") {
+//        }
     }.build()
 
 }
@@ -44,6 +102,23 @@ private inline fun <reified A:Any?, O> dataFetcherByArgument(
 ): DataFetcher<O> =  DataFetcher<O> { env: DataFetchingEnvironment ->
     val argument: A = env.getArgument(argumentName)
     transform(argument)
+}
+
+private inline fun <reified A:Any?, B:Any?, O> dataFetcherByTwoArguments(
+    argumentName1: String,
+    argumentName2: String,
+    crossinline transform: (A, B)->O
+): DataFetcher<O> =  DataFetcher<O> { env: DataFetchingEnvironment ->
+    val argument1: A = env.getArgument(argumentName1)
+    val argument2: B = env.getArgument(argumentName2)
+    transform(argument1, argument2)
+}
+
+private inline fun <reified S:Any, O> dataFetcherBySource(
+    crossinline transform: (S)->O
+): DataFetcher<O> =  DataFetcher<O> { env: DataFetchingEnvironment ->
+    val source: S = env.getSource()
+    transform(source)
 }
 
 private fun RuntimeWiring.Builder.addTypeWiring(graphQLType: String, executeOnContext: TypeWiringContext.()->Unit) {

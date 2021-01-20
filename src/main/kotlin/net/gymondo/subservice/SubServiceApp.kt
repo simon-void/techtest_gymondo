@@ -1,9 +1,14 @@
 package net.gymondo.subservice
 
-import net.gymondo.subservice.repository.SubscriptionEntity
-import net.gymondo.subservice.repository.SubscriptionRepository
+import net.gymondo.subservice.repository.*
+import net.gymondo.subservice.service.Level
+import net.gymondo.subservice.service.OfferDuration
+import net.gymondo.subservice.service.OfferDurationUnit
+import net.gymondo.subservice.service.SubscriptionService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import java.time.LocalDate
@@ -13,23 +18,61 @@ fun main(args: Array<String>) {
 }
 
 @SpringBootApplication
+@ConfigurationPropertiesScan("net.gymondo.subservice")
 @EnableJpaRepositories("net.gymondo.subservice.repository")
 class SubServiceApp(
-    val subsRepo: SubscriptionRepository
+    private val userRepo: UserRepository,
+    private val courseRepo: CourseRepository,
+    private val offerRepo: OfferRepository,
+    private val subRepo: SubscriptionRepository,
+    private val subService: SubscriptionService,
 ) : CommandLineRunner {
 
     companion object: Logging(SubServiceApp::class.java)
 
     override fun run(vararg args: String) {
-        // add a subscription
-        subsRepo.save(
-            SubscriptionEntity(
-                3L, 5L, "a while", 234, LocalDate.now()
+        initDB()
+    }
+
+    private fun initDB() {
+        val userId = userRepo.save(
+            UserEntity(
+                name = "user1",
+                passwordHash = "some hash"
             )
-        )
+        ).id!!
+
+        val courseId = courseRepo.save(
+            CourseEntity(
+                name = "BestPilates",
+                instructorName = "",
+                level = Level.ADVANCED.toString(),
+            )
+        ).id!!
+
+        val today = LocalDate.now()
+        val twoWeekOfferId = offerRepo.save(
+            OfferEntity(
+                courseId,
+                OfferDuration.with(OfferDurationUnit.WEEKS, 2).toString(),
+                today,
+                11999,
+            )
+        ).id!!
+        val oneMonthOfferId = offerRepo.save(
+            OfferEntity(
+                courseId,
+                OfferDuration.with(OfferDurationUnit.MONTHS, 1).toString(),
+                today,
+                19999,
+            )
+        ).id!!
+
+        // add a subscription
+        subService.subscribe(userId, oneMonthOfferId)
 
         // and print all found subscriptions to the log
-        val subscriptions: List<SubscriptionEntity> = subsRepo.findAll().toList()
+        val subscriptions: List<SubscriptionEntity> = subRepo.findAll().toList()
         logger.info("found ${subscriptions.size} subscriptions:")
         for(sub in subscriptions) {
             logger.info("$sub")
