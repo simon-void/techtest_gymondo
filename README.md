@@ -84,6 +84,43 @@ or by executing via `./gradlew bootRun` in a terminal set to the project directo
     taxInCents
     startDate
     endDate
+    state
+  }
+}
+```
+4) display a specific subscription:
+```graphql
+{
+  subscription(subId:"5") {
+    id
+    course {
+      id
+      name
+      instructorName
+      level
+    }
+    user {
+      id
+      name
+    }
+    duration {
+      unit
+      multiplier
+    }
+    priceInCents
+    taxInCents
+    startDate
+    endDate
+    state
+  }
+}
+```
+6) cancel a subscription:
+```graphql
+{
+  cancelSubscription(subId:"5") {
+    id
+    state
   }
 }
 ```

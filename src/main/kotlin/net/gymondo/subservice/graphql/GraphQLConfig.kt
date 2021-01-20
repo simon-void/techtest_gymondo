@@ -49,11 +49,13 @@ class GraphQLProvider(
                 offerService.getOffer(offerId.toLong())
             })
             register( "buy", dataFetcherByTwoArguments("userId", "offerId") {userId: String, offerId: String ->
-                val sub = subService.subscribe(userId.toLong(), offerId.toLong())
-                sub
+                subService.subscribe(userId.toLong(), offerId.toLong())
             })
             register("subscription", dataFetcherByArgument("subId") { subId: String ->
                 subService.getSubscription(subId.toLong())
+            })
+            register("cancelSubscription", dataFetcherByArgument("subId") { subId: String ->
+                subService.cancelSubscription(subId.toLong())
             })
         }
 

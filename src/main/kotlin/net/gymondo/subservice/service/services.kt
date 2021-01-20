@@ -41,6 +41,14 @@ class SubscriptionService(
     }?.toModel()
 
     fun getSubscription(subId: Long): Subscription? = subRepo.findByIdOrNull(subId)?.toModel()
+
+    fun cancelSubscription(subId: Long): Subscription? = runCatching {
+        subRepo.findByIdOrNull(subId)?.let{ subEntity ->
+            // TODO check if the state is EXPIRED because currently you can switch it to CANCELLED which is a bit strange
+            subEntity.isCancelled = true
+            subRepo.save(subEntity)
+        }
+    }.getOrNull()?.toModel()
 }
 
 @Service
@@ -83,15 +91,23 @@ private fun String.toDurationModel(): OfferDuration {
     )
 }
 
-private fun SubscriptionEntity.toModel() = Subscription(
-    id = this.id!!,
-    userId = this.userId,
-    courseId = this.courseId,
-//    state = TODO(),
-    duration = this.duration.toDurationModel(),
-    priceInCents = this.priceInCents,
-    startDate = this.startDate,
-)
+private fun SubscriptionEntity.toModel(): Subscription {
+    val state = when {
+        this.isCancelled -> SubscriptionState.CANCELLED
+        LocalDate.now() > this.startDate.plus(this.duration.toDurationModel()) -> SubscriptionState.EXPIRED
+        else -> SubscriptionState.ACTIVE
+    }
+
+    return Subscription(
+        id = this.id!!,
+        userId = this.userId,
+        courseId = this.courseId,
+        state = state,
+        duration = this.duration.toDurationModel(),
+        priceInCents = this.priceInCents,
+        startDate = this.startDate,
+    )
+}
 
 private fun CourseEntity.toModel() = Course(
     id = this.id!!,

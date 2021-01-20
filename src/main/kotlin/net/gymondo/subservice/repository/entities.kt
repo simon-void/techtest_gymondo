@@ -1,11 +1,6 @@
 package net.gymondo.subservice.repository
 
-import net.gymondo.subservice.service.Level
-import net.gymondo.subservice.service.OfferDuration
-import net.gymondo.subservice.service.OfferDurationUnit
-import net.gymondo.subservice.service.SubscriptionState
 import java.time.LocalDate
-import java.util.*
 import javax.persistence.*
 
 import javax.persistence.GeneratedValue
@@ -18,11 +13,12 @@ class SubscriptionEntity(
     var duration: String,
     var priceInCents: Int,
     var startDate: LocalDate,
+    var isCancelled: Boolean = false,
     @Id @GeneratedValue var id: Long? = null,
 ) {
     constructor() : this(0L, 0L, "", -1, LocalDate.MIN)
 
-    override fun toString() = "SubscriptionEntity(id=$id, userId=$userId, courseId=$courseId, dur=$duration, price=$priceInCents, start=$startDate)"
+    override fun toString() = "SubscriptionEntity(id=$id, userId=$userId, courseId=$courseId, dur=$duration, price=$priceInCents, start=$startDate, isCancled=$isCancelled)"
 
     override fun equals(other: Any?): Boolean = when {
         this === other -> true

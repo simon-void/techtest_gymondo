@@ -7,7 +7,7 @@ data class Subscription(
     val id: Long,
     val userId: Long,
     val courseId: Long,
-//    val state: SubscriptionState, TODO
+    val state: SubscriptionState,
     val duration: OfferDuration,
     val priceInCents: Int,
     val startDate: LocalDate,
@@ -21,7 +21,7 @@ data class Subscription(
 }
 
 enum class SubscriptionState {
-    ACTIVE, PAUSED, CANCELLED, EXPIRED
+    ACTIVE, CANCELLED, EXPIRED
 }
 
 data class User(
