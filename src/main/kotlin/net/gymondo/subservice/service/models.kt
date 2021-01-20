@@ -11,17 +11,18 @@ data class Subscription(
     val duration: OfferDuration,
     val priceInCents: Int,
     val startDate: LocalDate,
+    val daysPaused: Long,
 ) {
     // I'll have to add the paused days
     val endDate: LocalDate get() = when(duration.unit) {
-        OfferDurationUnit.DAYS -> startDate.plusDays(duration.multiplier)
-        OfferDurationUnit.WEEKS -> startDate.plusWeeks(duration.multiplier)
-        OfferDurationUnit.MONTHS -> startDate.plusMonths(duration.multiplier)
+        OfferDurationUnit.DAYS -> startDate.plusDays(duration.multiplier + daysPaused)
+        OfferDurationUnit.WEEKS -> startDate.plusWeeks(duration.multiplier).plusDays(daysPaused)
+        OfferDurationUnit.MONTHS -> startDate.plusMonths(duration.multiplier).plusDays(daysPaused)
     }
 }
 
 enum class SubscriptionState {
-    ACTIVE, CANCELLED, EXPIRED
+    ACTIVE, PAUSED, CANCELLED, EXPIRED
 }
 
 data class User(

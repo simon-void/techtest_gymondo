@@ -8,6 +8,7 @@ type Query {
     product(offerId: ID!): Offer
     buy(userId: ID!, offerId: ID!): Subscription
     subscription(subId: ID!): Subscription
+    pauseUnpauseSubscription(subId: ID!): Subscription
     cancelSubscription(subId: ID!): Subscription
 }
 
@@ -33,6 +34,7 @@ type Subscription {
     startDate: String!
     endDate: String!
     state: SubscriptionState!
+    daysPaused: Int!
 }
 
 type User {
@@ -67,6 +69,7 @@ enum OfferDurationUnit {
 
 enum SubscriptionState {
     ACTIVE
+    PAUSED
     CANCELLED
     EXPIRED
 }

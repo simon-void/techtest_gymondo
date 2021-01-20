@@ -54,6 +54,9 @@ class GraphQLProvider(
             register("subscription", dataFetcherByArgument("subId") { subId: String ->
                 subService.getSubscription(subId.toLong())
             })
+            register("pauseUnpauseSubscription", dataFetcherByArgument("subId") { subId: String ->
+                subService.pauseUnpauseSubscription(subId.toLong())
+            })
             register("cancelSubscription", dataFetcherByArgument("subId") { subId: String ->
                 subService.cancelSubscription(subId.toLong())
             })

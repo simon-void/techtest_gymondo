@@ -51,6 +51,7 @@ class SubServiceApp(
         ).id!!
 
         val today = LocalDate.now()
+        // not used in code but can be used in call to buy-query
         val twoWeekOfferId = offerRepo.save(
             OfferEntity(
                 courseId,

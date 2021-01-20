@@ -115,6 +115,17 @@ or by executing via `./gradlew bootRun` in a terminal set to the project directo
   }
 }
 ```
+5) pause/unpause an active/paused subscription as often as you want (paused days are added to the endDate):
+```graphql
+{
+  pauseUnpauseSubscription(subId:"5") {
+    id
+    endDate
+    state
+    daysPaused
+  }
+}
+```
 6) cancel a subscription:
 ```graphql
 {

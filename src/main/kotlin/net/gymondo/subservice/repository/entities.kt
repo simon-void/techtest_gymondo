@@ -13,12 +13,14 @@ class SubscriptionEntity(
     var duration: String,
     var priceInCents: Int,
     var startDate: LocalDate,
+    var pausedDate: LocalDate? = null,
+    var daysPaused: Int = 0,
     var isCancelled: Boolean = false,
     @Id @GeneratedValue var id: Long? = null,
 ) {
     constructor() : this(0L, 0L, "", -1, LocalDate.MIN)
 
-    override fun toString() = "SubscriptionEntity(id=$id, userId=$userId, courseId=$courseId, dur=$duration, price=$priceInCents, start=$startDate, isCancled=$isCancelled)"
+    override fun toString() = "SubscriptionEntity(id=$id, userId=$userId, courseId=$courseId, dur=$duration, price=$priceInCents, start=$startDate, isCancled=$isCancelled, pausedDate=$pausedDate, daysPaused=$daysPaused)"
 
     override fun equals(other: Any?): Boolean = when {
         this === other -> true

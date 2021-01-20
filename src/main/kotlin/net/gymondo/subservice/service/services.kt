@@ -5,6 +5,7 @@ import net.gymondo.subservice.repository.*
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 @Service
 class OfferService(
@@ -41,6 +42,25 @@ class SubscriptionService(
     }?.toModel()
 
     fun getSubscription(subId: Long): Subscription? = subRepo.findByIdOrNull(subId)?.toModel()
+
+    fun pauseUnpauseSubscription(subId: Long): Subscription? = runCatching {
+        subRepo.findByIdOrNull(subId)?.let{ subEntity ->
+            when(subEntity.state) {
+                SubscriptionState.ACTIVE -> {
+                    subEntity.pausedDate = LocalDate.now()
+                }
+                SubscriptionState.PAUSED -> {
+                    val pauseDate = subEntity.pausedDate
+                    checkNotNull(pauseDate) {"subscription with id ${subEntity.id} has no pauseDate even though its state is PAUSED"}
+                    val daysPaused = pauseDate.until(LocalDate.now(), ChronoUnit.DAYS).toInt()
+                    subEntity.daysPaused += daysPaused
+                    subEntity.pausedDate = null
+                }
+                else -> {}
+            }
+            subRepo.save(subEntity)
+        }
+    }.getOrNull()?.toModel()
 
     fun cancelSubscription(subId: Long): Subscription? = runCatching {
         subRepo.findByIdOrNull(subId)?.let{ subEntity ->
@@ -91,22 +111,22 @@ private fun String.toDurationModel(): OfferDuration {
     )
 }
 
-private fun SubscriptionEntity.toModel(): Subscription {
-    val state = when {
-        this.isCancelled -> SubscriptionState.CANCELLED
-        LocalDate.now() > this.startDate.plus(this.duration.toDurationModel()) -> SubscriptionState.EXPIRED
-        else -> SubscriptionState.ACTIVE
-    }
+private fun SubscriptionEntity.toModel() = Subscription(
+    id = this.id!!,
+    userId = this.userId,
+    courseId = this.courseId,
+    state = this.state,
+    duration = this.duration.toDurationModel(),
+    priceInCents = this.priceInCents,
+    startDate = this.startDate,
+    daysPaused = this.daysPaused.toLong()
+)
 
-    return Subscription(
-        id = this.id!!,
-        userId = this.userId,
-        courseId = this.courseId,
-        state = state,
-        duration = this.duration.toDurationModel(),
-        priceInCents = this.priceInCents,
-        startDate = this.startDate,
-    )
+private val SubscriptionEntity.state get() = when {
+    this.isCancelled -> SubscriptionState.CANCELLED
+    this.pausedDate != null -> SubscriptionState.PAUSED
+    LocalDate.now() > this.startDate.plus(this.duration.toDurationModel()) -> SubscriptionState.EXPIRED
+    else -> SubscriptionState.ACTIVE
 }
 
 private fun CourseEntity.toModel() = Course(
