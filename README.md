@@ -43,7 +43,7 @@ or by executing via `./gradlew bootRun` in a terminal set to the project directo
 2) display everything about a specific product/offer
 ```graphql
 {
-  product(offerId: 1) {
+  product(offerId: "3") {
     id
     course {
       id

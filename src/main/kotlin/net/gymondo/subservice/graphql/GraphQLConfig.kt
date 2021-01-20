@@ -48,11 +48,11 @@ class GraphQLProvider(
             register("product", dataFetcherByArgument("offerId") { offerId: String ->
                 offerService.getOffer(offerId.toLong())
             })
-            register( "buy", dataFetcherByTwoArguments("userId", "offerId") {userId: Long, offerId: Long ->
-                subService.subscribe(userId, offerId)
+            register( "buy", dataFetcherByTwoArguments("userId", "offerId") {userId: String, offerId: String ->
+                subService.subscribe(userId.toLong(), offerId.toLong())
             })
-            register("subscription", dataFetcherByArgument("subId") { subId: Long ->
-                subService.getSubscription(subId)
+            register("subscription", dataFetcherByArgument("subId") { subId: String ->
+                subService.getSubscription(subId.toLong())
             })
         }
 
